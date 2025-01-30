@@ -5,15 +5,18 @@
 const form = document.getElementById('appContainer');
 const userInput = document.getElementById('taskInput');
 const tasksDisplay = document.getElementById('taskList');
+const LS_NAME = "allTasksObjs";
 
 
 //Arrays of Tasks and Objects
 
-// Each user input should become an object inside of allObjects with two keys and its value.
-const allObjects = []; 
+// If the app has no tasks in LS_NAME allObjects is an empty array and if there's any task inside of LS_NAME ....
+const allObjects = retrieviengLocalStorage(LS_NAME);
 
-// Each task should be extracted from those objects and added to allTasks as li, these li's can be looped and displayed.
-const allTasks = [];
+// Then all tasks from LS_NAME will be displayed through this loop:
+for(objTask of allObjects){
+    tasksDisplay.append(taskFactory(objTask.activity));
+};
 
 
 // Events -----------------------------------------------------------
@@ -26,9 +29,10 @@ form.addEventListener('submit',(e)=>{
     // This event listener first creates the single element and THEN add it to its designated arrays to be manipulated and displayed.
 
     // 1. Validating user inputs;
-
     const input = inputValidator(userInput.value);
-    
+    if(input === undefined){
+        return;
+    }
 
     // 2. Creates single object;
     const newObj = objFactory(input);
@@ -38,15 +42,16 @@ form.addEventListener('submit',(e)=>{
 
     // 3. Use the input text data and creates an LI element using its info;
     const newTaskElement = taskFactory(newTaskText);
-
     
-    // 3.1. This part stores the objects and tasks to its arrays to be future manipulated:
-    
+    // 3.1. This part stores the objects and tasks to its arrays to be future manipulated:    
     allObjects.push(newObj);
-    allTasks.push(newTaskElement);
+   
 
-    // This part will display alltasks into the page:
-    displayingTasks(allTasks, tasksDisplay);
+    // 3.2 This part stores allObjects to localStorage
+    addingToLocalStorage(LS_NAME, allObjects);
+
+    // 3.3 This part will append new task into page:
+    tasksDisplay.append(newTaskElement);
 
     userInput.value = '';
     
@@ -69,13 +74,12 @@ tasksDisplay.addEventListener('click',(e)=>{
 // BROKEN: the validation is not working. Empty tasks are still being appended to app;
 
 function inputValidator(userInput){
-    
-    if(userInput.value !== ''){
+    console.log(userInput);
+    if(userInput){
         return userInput;
     }
     else {
         window.alert('Task cannot be empty!');
-        return undefined;
     }
     
 };
@@ -116,6 +120,26 @@ function displayingTasks(arrayOfLis, areaToBeDisplayed){
     };
     
 };
+
+// Store in LocalStorage
+// parameter 1: pick a name to add in localStorage;
+// parameter 2: choose the array of objects to store in localStorage;
+// return : no return
+function addingToLocalStorage(storageName,arrOfElements){
+    localStorage.setItem(storageName, JSON.stringify(arrOfElements));
+
+    return;
+}
+
+// Getting things from localStorage 
+// parameter: nameOfList (list name in storage)
+// return: array of task objects
+function retrieviengLocalStorage(nameOfList){
+    return JSON.parse(localStorage.getItem(nameOfList)) || [];
+    
+}
+
+
 
 
 // These are for training and tests -------------------------------------
@@ -174,7 +198,6 @@ function displayingTasks(arrayOfLis, areaToBeDisplayed){
 // for(let i = 0; i < mockTasks.length; i++){
 //     console.log(mockTasks[i].title);
 // }
-
 
 
 
