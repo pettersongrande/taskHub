@@ -1,49 +1,35 @@
 // ToDo List----------------------------------------------------------------------------
 
 // Selectors
-
 const form = document.getElementById('appContainer');
 const userInput = document.getElementById('taskInput');
 const tasksDisplay = document.getElementById('taskList');
 const LS_NAME = "allTasksObjs";
 
 
-//Arrays of Tasks and Objects
+
+//RENDERING and DISPLAYING array of tasks and objects.
 
 // If the app has no tasks in LS_NAME allObjects is an empty array and if there's any task inside of LS_NAME ....
 const allObjects = retrieviengLocalStorage(LS_NAME);
 
-// Then all tasks from LS_NAME will be displayed through this loop:
-// for(objTask of allObjects){
-//     tasksDisplay.append(taskFactory(objTask.activity));
-// };
+// Then all tasks from LS_NAME will be displayed through this function:
 renderList();
 
-function renderList(){
-    tasksDisplay.innerHTML = '';
-    for(let i = 0; i < allObjects.length; i++){
-        tasksDisplay.append(taskFactory(allObjects[i].activity, i));
-        };
 
-};
+// ------------------------------------------EVENTS---------------------------------------------
 
-
-
-
-// Events -----------------------------------------------------------
-
-// ADD TASK EVENT
-
+// ADD TASK BUTTON
 form.addEventListener('submit',(e)=>{
     e.preventDefault();
     
-    // This event listener first creates the single element and THEN add it to its designated arrays to be manipulated and displayed.
+    // This event listener first creates the single element and THEN add it to its designated array to be manipulated and displayed.
 
     // 1. Validating user inputs;
     const input = inputValidator(userInput.value);
     if(input === undefined){
         return;
-    }
+    };
 
     // 2. Creates single object;
     const newObj = objFactory(input);
@@ -70,28 +56,50 @@ form.addEventListener('submit',(e)=>{
     
 });
 
-// TASK EVENTS
-
-// DELETING TASKS: Clicking on the delete btn FOR NEW TASKS is triggering the event listener while for events already inserted in the HTML is working fine;
-
+// TRASH BUTTON AND TASK DONE INTERACTION
 tasksDisplay.addEventListener('click',(e)=>{
+
     if(e.target.tagName === 'BUTTON'){
         const indexNumFromDataSet = e.target.parentElement.dataset.indexNum;
         e.target.parentElement.remove();
         deleteTask(indexNumFromDataSet, allObjects);
-        renderList();
+        renderList();       
+    }
 
-        // console.log();
-    }
     else if(e.target.tagName === "LI"){
+        const indexNumFromDataSet = e.target.dataset.indexNum;
+        setToTrue(indexNumFromDataSet, allObjects);
         e.target.classList.toggle('taskDone');
+        // const indexNumFromDataSet = e.target.dataset.indexNum;
+        
+        
+
     }
+
 });
 
+function setToTrue(indexNum, arrayOfObjects){
+    if(arrayOfObjects[indexNum].isDone === false){
+        arrayOfObjects[indexNum].isDone = true;
+        console.log('I was false now I must be true', allObjects)
+        
+        // e.target.classList.add('taskDone');
+        // add saveToLocalStorage
+        // clearTaskList and
+        // renderList
 
-// 1. Function to validate if the userInput is valid or not is empty or not;
-// BROKEN: the validation is not working. Empty tasks are still being appended to app;
+    } else {
+        arrayOfObjects[indexNum].isDone = false;
+        console.log('I was true now I must be false', allObjects);
 
+    }
+
+};
+
+// -----------------------------------ALL FUNCTIONS -------------------------------------------
+//INPUT VALIDATOR
+// Parameter 1: validate the userInput and check it is an empty string or not.
+// Return: return an user valid string to be used as an activity.
 function inputValidator(userInput){
     console.log(userInput);
     if(userInput){
@@ -103,11 +111,9 @@ function inputValidator(userInput){
     
 };
 
-//Creating and Displaying Elements Section----------------------------------
-
-// 2.OBJECT FACTORY This Function picks up the input returned from the input validator then transforms and returns it as an object.
-
-
+// OBJECT FACTORY
+// Parameter 1: user string as input
+// Return: taskObj;
 function objFactory(input){
     const taskObj = {
         activity: input,
@@ -118,30 +124,35 @@ function objFactory(input){
     
 };
 
-// 3. TASK FACTORY This function extracts text from the array of objects, creates an LI element and adds these texts to the array of tasks;
-
+// TASK FACTORY
+// Parameter 1: takes in a string;
+// Parameter 2: takes in a referral number;
+// Return: new LI element with data attribute to be manipulated and referred in an array;
 function taskFactory(taskText, taskIndex){
     const newLi = document.createElement('LI');
     newLi.innerHTML = taskText;
     newLi.dataset.indexNum = taskIndex;
     const delBtn = document.createElement('BUTTON');
-    delBtn.innerHTML = "&#x2713;";
+    delBtn.innerHTML = "&#128465;";
     delBtn.classList.add('deleteBtn');
     newLi.appendChild(delBtn);    
     return newLi;
 
 };
 
-// 4. DISPLAYING TASKS FUNCTION
-function displayingTasks(arrayOfLis, areaToBeDisplayed){
-    
-    for(let tasks of arrayOfLis){
-        areaToBeDisplayed.appendChild(tasks);
-    };
-    
+
+// TASK DISPLAYER
+// This function is not taking any parameter, but it is interacting with an array of objects.
+function renderList(){
+    tasksDisplay.innerHTML = '';
+    for(let i = 0; i < allObjects.length; i++){
+        tasksDisplay.append(taskFactory(allObjects[i].activity, i));
+        console.log(allObjects[i].isDone);
+        };
+
 };
 
-// Store in LocalStorage
+// ADD TO LOCAL STORAGE
 // parameter 1: pick a name to add in localStorage;
 // parameter 2: choose the array of objects to store in localStorage;
 // return : no return
@@ -151,23 +162,17 @@ function addingToLocalStorage(storageName,arrOfElements){
     return;
 }
 
-// Getting things from localStorage 
-// parameter: nameOfList (list name in storage)
-// return: array of task objects
+// RETRIEVE FROM LOCAL STORAGE 
+// Parameter: nameOfList (list name in storage)
+// Return: array of task objects
 function retrieviengLocalStorage(nameOfList){
     return JSON.parse(localStorage.getItem(nameOfList)) || [];
     
 }
 
-
-
-
-// Space for training and tests -------------------------------------
-
 // Deleting tasks using the array index:
 // Parameter: index number
 // return: nothing
-
 function deleteTask(indxNum, arrayOfObjects){
     arrayOfObjects.splice(indxNum, 1);
     addingToLocalStorage(LS_NAME, arrayOfObjects);
@@ -176,7 +181,7 @@ function deleteTask(indxNum, arrayOfObjects){
     return;
 }
 
-
+// -------------------------Space for training and tests -------------------------------------
 // const mockTasks = [
 //     {
 //         activity: 'Bike Ride',

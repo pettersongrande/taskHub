@@ -164,7 +164,9 @@ html {
 .deleteBtn{
     margin-left: 0.5em;
     border-radius: 1em;
-    
+    border-color: transparent;
+    cursor: pointer;
+
 }
 
 /* CONTAINER STYLES */
