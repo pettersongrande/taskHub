@@ -14,9 +14,20 @@ const LS_NAME = "allTasksObjs";
 const allObjects = retrieviengLocalStorage(LS_NAME);
 
 // Then all tasks from LS_NAME will be displayed through this loop:
-for(objTask of allObjects){
-    tasksDisplay.append(taskFactory(objTask.activity));
+// for(objTask of allObjects){
+//     tasksDisplay.append(taskFactory(objTask.activity));
+// };
+renderList();
+
+function renderList(){
+    tasksDisplay.innerHTML = '';
+    for(let i = 0; i < allObjects.length; i++){
+        tasksDisplay.append(taskFactory(allObjects[i].activity, i));
+        };
+
 };
+
+
 
 
 // Events -----------------------------------------------------------
@@ -40,12 +51,14 @@ form.addEventListener('submit',(e)=>{
     // 2.1 Extracting user input text from object;
     const newTaskText = newObj.activity;
 
+    // 2.2 Giving an index to dataset based on the length of the array;
+    const taskIndex = allObjects.length;
+
     // 3. Use the input text data and creates an LI element using its info;
-    const newTaskElement = taskFactory(newTaskText);
+    const newTaskElement = taskFactory(newTaskText, taskIndex);
     
     // 3.1. This part stores the objects and tasks to its arrays to be future manipulated:    
-    allObjects.push(newObj);
-   
+    allObjects.push(newObj);   
 
     // 3.2 This part stores allObjects to localStorage
     addingToLocalStorage(LS_NAME, allObjects);
@@ -58,11 +71,17 @@ form.addEventListener('submit',(e)=>{
 });
 
 // TASK EVENTS
-// Clicking on the delete btn FOR NEW TASKS is triggering the event listener while for events already inserted in the HTML is working fine;
+
+// DELETING TASKS: Clicking on the delete btn FOR NEW TASKS is triggering the event listener while for events already inserted in the HTML is working fine;
 
 tasksDisplay.addEventListener('click',(e)=>{
     if(e.target.tagName === 'BUTTON'){
+        const indexNumFromDataSet = e.target.parentElement.dataset.indexNum;
         e.target.parentElement.remove();
+        deleteTask(indexNumFromDataSet, allObjects);
+        renderList();
+
+        // console.log();
     }
     else if(e.target.tagName === "LI"){
         e.target.classList.toggle('taskDone');
@@ -101,9 +120,10 @@ function objFactory(input){
 
 // 3. TASK FACTORY This function extracts text from the array of objects, creates an LI element and adds these texts to the array of tasks;
 
-function taskFactory(taskText){
+function taskFactory(taskText, taskIndex){
     const newLi = document.createElement('LI');
     newLi.innerHTML = taskText;
+    newLi.dataset.indexNum = taskIndex;
     const delBtn = document.createElement('BUTTON');
     delBtn.innerHTML = "&#x2713;";
     delBtn.classList.add('deleteBtn');
@@ -142,7 +162,20 @@ function retrieviengLocalStorage(nameOfList){
 
 
 
-// These are for training and tests -------------------------------------
+// Space for training and tests -------------------------------------
+
+// Deleting tasks using the array index:
+// Parameter: index number
+// return: nothing
+
+function deleteTask(indxNum, arrayOfObjects){
+    arrayOfObjects.splice(indxNum, 1);
+    addingToLocalStorage(LS_NAME, arrayOfObjects);
+    console.log(allObjects);
+
+    return;
+}
+
 
 // const mockTasks = [
 //     {
@@ -198,8 +231,3 @@ function retrieviengLocalStorage(nameOfList){
 // for(let i = 0; i < mockTasks.length; i++){
 //     console.log(mockTasks[i].title);
 // }
-
-
-
-
-
