@@ -32,16 +32,13 @@ form.addEventListener('submit',(e)=>{
     };
 
     // 2. Creates single object;
-    const newObj = objFactory(input);
+    const newObj = objFactory(input);   
 
-    // 2.1 Extracting user input text from object;
-    const newTaskText = newObj.activity;
-
-    // 2.2 Giving an index to dataset based on the length of the array;
+    // 2.1 Giving an index to dataset based on the length of the array;
     const taskIndex = allObjects.length;
 
     // 3. Use the input text data and creates an LI element using its info;
-    const newTaskElement = taskFactory(newTaskText, taskIndex);
+    const newTaskElement = taskFactory(newObj, taskIndex);
     
     // 3.1. This part stores the objects and tasks to its arrays to be future manipulated:    
     allObjects.push(newObj);   
@@ -68,11 +65,16 @@ tasksDisplay.addEventListener('click',(e)=>{
 
     else if(e.target.tagName === "LI"){
         const indexNumFromDataSet = e.target.dataset.indexNum;
-        setToTrue(indexNumFromDataSet, allObjects);
-        e.target.classList.toggle('taskDone');
-        // const indexNumFromDataSet = e.target.dataset.indexNum;
-        
-        
+        setToTrue(indexNumFromDataSet, allObjects)
+        if(allObjects[indexNumFromDataSet].isDone === true){
+            e.target.classList.add('taskDone');
+        }
+        else {
+            e.target.classList.remove('taskDone');
+        }
+
+        addingToLocalStorage(LS_NAME, allObjects);
+        renderList();      
 
     }
 
@@ -81,16 +83,12 @@ tasksDisplay.addEventListener('click',(e)=>{
 function setToTrue(indexNum, arrayOfObjects){
     if(arrayOfObjects[indexNum].isDone === false){
         arrayOfObjects[indexNum].isDone = true;
-        console.log('I was false now I must be true', allObjects)
-        
-        // e.target.classList.add('taskDone');
-        // add saveToLocalStorage
-        // clearTaskList and
-        // renderList
+        console.log('I was false now I must be true and task must be crossed.', allObjects);
+
 
     } else {
         arrayOfObjects[indexNum].isDone = false;
-        console.log('I was true now I must be false', allObjects);
+        console.log('I was true now I must be false and task must be uncrossed', allObjects);
 
     }
 
@@ -128,10 +126,14 @@ function objFactory(input){
 // Parameter 1: takes in a string;
 // Parameter 2: takes in a referral number;
 // Return: new LI element with data attribute to be manipulated and referred in an array;
-function taskFactory(taskText, taskIndex){
+function taskFactory(task, taskIndex){
     const newLi = document.createElement('LI');
-    newLi.innerHTML = taskText;
+    newLi.innerHTML = task.activity;
     newLi.dataset.indexNum = taskIndex;
+    if(task.isDone === true){
+        newLi.classList.add('taskDone');
+    }
+    
     const delBtn = document.createElement('BUTTON');
     delBtn.innerHTML = "&#128465;";
     delBtn.classList.add('deleteBtn');
@@ -146,8 +148,7 @@ function taskFactory(taskText, taskIndex){
 function renderList(){
     tasksDisplay.innerHTML = '';
     for(let i = 0; i < allObjects.length; i++){
-        tasksDisplay.append(taskFactory(allObjects[i].activity, i));
-        console.log(allObjects[i].isDone);
+        tasksDisplay.append(taskFactory(allObjects[i], i));
         };
 
 };
@@ -176,7 +177,7 @@ function retrieviengLocalStorage(nameOfList){
 function deleteTask(indxNum, arrayOfObjects){
     arrayOfObjects.splice(indxNum, 1);
     addingToLocalStorage(LS_NAME, arrayOfObjects);
-    console.log(allObjects);
+    // console.log(allObjects);
 
     return;
 }
