@@ -186,3 +186,18 @@ html {
     text-wrap: wrap;
     line-height: 1.3;
 }
+
+/* DARK MODE STYLES */
+
+.dark {
+    background-color: #1d1616;
+    color: #eeeeee;
+}
+
+.dark h1{
+    color: #eeeeee;
+}
+
+#appContainer .dark{
+    border-color: #eeeeee;;
+}
